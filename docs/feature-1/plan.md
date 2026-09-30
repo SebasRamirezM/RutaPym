@@ -53,7 +53,9 @@ Cada tarea es un *issue* en GitHub. Responsables propuestos; el equipo puede rea
 | T6 | Script de aceptación y evidencia | todos | Emmanuel Cardona | `feature/1-red-operativa` |
 | T7 | README, bitácora IA y guion del pitch | CA-16 | Sebastian Ramirez | `feature/1-red-operativa` |
 | T8 | Revisión cruzada de PR | — | quien no sea autor del PR | — |
-| T9 | Video (≤ 3 min) y pitch | — | integrante asignado al pitch | — |
+| T9 | Pitch en clase | — | integrante asignado al pitch | — |
+
+> El docente indicó que **no se requiere video**: la demostración se hace en la exposición en clase.
 
 ## 4. Flujo en GitHub
 
