@@ -82,7 +82,11 @@ def validar_costo(valor):
     # bool es subclase de int en Python, por eso se descarta explícitamente.
     if isinstance(valor, bool) or not isinstance(valor, (int, float)):
         raise DatoInvalido(f"El costo debe ser un número (por ejemplo 12 o 7.5), no {valor!r}.")
-    if not math.isfinite(valor) or valor <= 0:
+    try:
+        finito = math.isfinite(valor)
+    except OverflowError:  # entero tan grande que no cabe en un número decimal
+        finito = False
+    if not finito or valor <= 0:
         raise DatoInvalido(f"El costo debe ser un número mayor que 0 (minutos). Se recibió {valor}.")
     return valor
 

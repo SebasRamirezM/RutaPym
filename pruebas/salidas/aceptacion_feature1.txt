@@ -79,40 +79,49 @@ API: http://127.0.0.1:8000
 [PASÓ] 23. Costo booleano
         Esperado: 400 dato_invalido
         Obtenido: 400 dato_invalido — «El costo debe ser un número (por ejemplo 12 o 7.5), no True.»
-[PASÓ] 24. Conexión sin costo
+[PASÓ] 24. Costo entero enorme (400 dígitos)
+        Esperado: 400 dato_invalido
+        Obtenido: 400 dato_invalido — «El costo debe ser un número mayor que 0 (minutos). Se recibió 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.»
+[PASÓ] 25. Conexión sin costo
         Esperado: 400 formato_incorrecto
         Obtenido: 400 formato_incorrecto — «Falta el campo 'costo'.»
-[PASÓ] 25. Costo NaN en el JSON
+[PASÓ] 26. Costo NaN en el JSON
         Esperado: 400 formato_incorrecto
         Obtenido: 400 formato_incorrecto — «El cuerpo no es JSON válido. Ejemplo: {"id": "BOD-CENTRO", "tipo": "bodega"}.»
-[PASÓ] 26. Lazo: un punto conectado consigo mismo
+[PASÓ] 27. Lazo: un punto conectado consigo mismo
         Esperado: 400 dato_invalido
         Obtenido: 400 dato_invalido — «Un trayecto debe unir dos puntos distintos ('BAR-SUR' → 'BAR-SUR' no es válido).»
-[PASÓ] 27. JSON mal formado
+[PASÓ] 28. JSON mal formado
         Esperado: 400 formato_incorrecto
         Obtenido: 400 formato_incorrecto — «El cuerpo no es JSON válido. Ejemplo: {"id": "BOD-CENTRO", "tipo": "bodega"}.»
-[PASÓ] 28. Cuerpo que no es un objeto
+[PASÓ] 29. Cuerpo que no es un objeto
         Esperado: 400 formato_incorrecto
         Obtenido: 400 formato_incorrecto — «El cuerpo debe ser un objeto JSON (entre llaves { }).»
-[PASÓ] 29. Los rechazos no modificaron la red
+[PASÓ] 30. Consultar un punto con id de formato inválido
+        Esperado: 400 dato_invalido
+        Obtenido: 400 dato_invalido — «El campo 'id' debe tener de 1 a 30 caracteres: letras sin tilde, números, '-' o '_', sin espacios. Ejemplo: BOD-CENTRO.»
+[PASÓ] 31. Los rechazos no modificaron la red
         Esperado: 4 puntos y 4 conexiones
         Obtenido: 4 puntos y 4 conexiones
 
 === API, visualización y datos de ejemplo ===
-[PASÓ] 30. Endpoint inexistente
+[PASÓ] 32. Endpoint inexistente
         Esperado: 404 ruta_no_encontrada
         Obtenido: 404 ruta_no_encontrada — «No existe el endpoint /api/rutas.»
-[PASÓ] 31. Método no permitido
+[PASÓ] 33. Método no permitido
         Esperado: 405 metodo_no_permitido
         Obtenido: 405 metodo_no_permitido — «PUT no está permitido en /api/puntos. Use: GET, POST.»
-[PASÓ] 32. Imagen de la red dibujada con NetworkX
+[PASÓ] 34. Un cliente con una petición incompleta no bloquea la API
+        Esperado: 200 en /api/salud mientras el otro cliente espera
+        Obtenido: 200
+[PASÓ] 35. Imagen de la red dibujada con NetworkX
         Esperado: 200 image/png con firma PNG
         Obtenido: 200 image/png con firma PNG=True
-[PASÓ] 33. Cargar la red sintética de ejemplo
+[PASÓ] 36. Cargar la red sintética de ejemplo
         Esperado: 201 con 7 puntos y 10 conexiones
         Obtenido: 201 con 7 puntos y 10 conexiones
-[PASÓ] 34. Vaciar la red
+[PASÓ] 37. Vaciar la red
         Esperado: 200 y luego 0 puntos, 0 conexiones
         Obtenido: 200 y luego 0 puntos, 0 conexiones
 
-Resultado: 34/34 escenarios aprobados.
+Resultado: 37/37 escenarios aprobados.

@@ -79,6 +79,7 @@ def _rechazar_constante(nombre):
 
 class ManejadorRutaPyme(BaseHTTPRequestHandler):
     server_version = "RutaPyme/1.0"
+    timeout = 10  # segundos; corta clientes que dejan una petición a medias
 
     # --- Entrada ----------------------------------------------------------
 
@@ -96,6 +97,9 @@ class ManejadorRutaPyme(BaseHTTPRequestHandler):
 
     def do_PATCH(self):
         self._atender("PATCH")
+
+    def do_OPTIONS(self):
+        self._atender("OPTIONS")
 
     def _atender(self, metodo):
         ruta = urlsplit(self.path).path
@@ -124,6 +128,8 @@ class ManejadorRutaPyme(BaseHTTPRequestHandler):
 
     def _ejecutar(self, manejador, parametros):
         try:
+            # El cuerpo se lee ANTES de tomar el candado: un cliente lento no bloquea a los demás.
+            self._cuerpo = self._leer_cuerpo()
             # El candado evita que dos peticiones modifiquen la red al mismo tiempo.
             with self.server.candado:
                 manejador(**parametros)
@@ -133,17 +139,21 @@ class ManejadorRutaPyme(BaseHTTPRequestHandler):
             traceback.print_exc()
             self._enviar_error(500, "error_interno", "Ocurrió un error inesperado en el servidor.")
 
-    def _leer_json(self):
-        """Lee el cuerpo como objeto JSON o lanza FormatoIncorrecto (CA-11)."""
+    def _leer_cuerpo(self):
+        """Lee los bytes del cuerpo según Content-Length (puede estar vacío)."""
         try:
             longitud = int(self.headers.get("Content-Length") or 0)
         except ValueError:
             raise FormatoIncorrecto("El encabezado Content-Length no es válido.")
-        if longitud <= 0:
-            raise FormatoIncorrecto("El cuerpo de la petición está vacío. Envíe un objeto JSON.")
         if longitud > TAMANO_MAXIMO_CUERPO:
             raise FormatoIncorrecto(f"El cuerpo supera el máximo de {TAMANO_MAXIMO_CUERPO} bytes.")
-        crudo = self.rfile.read(longitud)
+        return self.rfile.read(longitud) if longitud > 0 else b""
+
+    def _leer_json(self):
+        """Interpreta el cuerpo como objeto JSON o lanza FormatoIncorrecto (CA-11)."""
+        crudo = self._cuerpo
+        if not crudo:
+            raise FormatoIncorrecto("El cuerpo de la petición está vacío. Envíe un objeto JSON.")
         try:
             # parse_constant rechaza NaN e Infinity, que json acepta por defecto.
             datos = json.loads(crudo.decode("utf-8"), parse_constant=_rechazar_constante)

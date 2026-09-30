@@ -49,7 +49,7 @@ Formato: **Dado** (situación) · **Cuando** (acción) · **Entonces** (resultad
 | CA-10 | existe A | se registra A→A | responde **400** `dato_invalido` (un trayecto une dos puntos distintos) |
 | CA-11 | cualquier red | se envía un cuerpo que no es JSON válido o no es un objeto | responde **400** `formato_incorrecto` |
 | CA-12 | una red (vacía o no) | se consulta `GET /api/red` | responde **200** con: dirección, significado del peso, estructura, resumen, lista de adyacencia y una versión en texto legible |
-| CA-13 | existe A | se consulta `GET /api/puntos/A` | responde **200** con el punto y sus salidas; si no existe, **404** `punto_inexistente` |
+| CA-13 | existe A | se consulta `GET /api/puntos/A` | responde **200** con el punto y sus salidas; si no existe, **404** `punto_inexistente`; si el id tiene formato inválido, **400** `dato_invalido` |
 | CA-14 | el servidor está encendido | el coordinador usa la interfaz web | puede registrar puntos y conexiones, ver tablas, la lista de adyacencia y los mensajes de error de la API |
 | CA-15 | una red con puntos | se pide `GET /api/red/imagen` | responde **200** con una imagen PNG dibujada por NetworkX a partir de **nuestra** red |
 | CA-16 | — | se lee la documentación | explica por qué la red es dirigida, qué representa el peso y cuál es la representación principal |
@@ -64,7 +64,7 @@ Base: `http://127.0.0.1:8000`. Todas las respuestas son JSON (`UTF-8`), excepto 
 | GET    | `/api/tipos` | — | 200 `{tipos}` | — |
 | GET    | `/api/puntos` | — | 200 `{total, puntos}` | — |
 | POST   | `/api/puntos` | `{id, tipo}` | 201 `{mensaje, punto}` | 400, 409 |
-| GET    | `/api/puntos/{id}` | — | 200 `{punto, salidas}` | 404 |
+| GET    | `/api/puntos/{id}` | — | 200 `{punto, salidas}` | 400 (id con formato inválido), 404 |
 | GET    | `/api/conexiones` | — | 200 `{total, conexiones}` | — |
 | POST   | `/api/conexiones` | `{origen, destino, costo}` | 201 `{mensaje, conexion}` | 400, 404, 409 |
 | GET    | `/api/red` | — | 200 representación legible | — |
@@ -81,7 +81,7 @@ Base: `http://127.0.0.1:8000`. Todas las respuestas son JSON (`UTF-8`), excepto 
 | Código HTTP | `codigo` | Cuándo |
 |-------------|----------|--------|
 | 400 | `formato_incorrecto` | JSON inválido, cuerpo que no es objeto o campo obligatorio ausente |
-| 400 | `dato_invalido` | identificador, tipo o costo que no cumplen las reglas; lazo A→A |
+| 400 | `dato_invalido` | identificador, tipo o costo que no cumplen las reglas (incluye números enormes); lazo A→A |
 | 404 | `punto_inexistente` | se usa un punto que no está registrado |
 | 404 | `ruta_no_encontrada` | el endpoint no existe |
 | 405 | `metodo_no_permitido` | el endpoint existe pero no con ese método |

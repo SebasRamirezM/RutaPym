@@ -32,10 +32,9 @@ function mostrarAviso(texto, tipo = "exito") {
   temporizadorAviso = setTimeout(() => aviso.classList.remove("visible"), 4000);
 }
 
+const ENTIDADES_HTML = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 function escapar(texto) {
-  const div = document.createElement("div");
-  div.textContent = String(texto);
-  return div.innerHTML;
+  return String(texto).replace(/[&<>"']/g, (caracter) => ENTIDADES_HTML[caracter]);
 }
 
 function insignia(tipo) {
@@ -146,6 +145,11 @@ $("#form-consulta").addEventListener("submit", async (evento) => {
   const resultado = $("#resultado-consulta");
   const id = evento.target.identificador.value.trim();
   resultado.classList.remove("oculto", "error");
+  if (!id) {
+    resultado.classList.add("error");
+    resultado.textContent = "Escriba el identificador de un punto para consultar sus salidas.";
+    return;
+  }
   try {
     const datos = await llamarApi("GET", `/api/puntos/${encodeURIComponent(id)}`);
     const salidas = datos.salidas.length

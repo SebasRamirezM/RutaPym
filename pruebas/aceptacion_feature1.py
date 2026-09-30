@@ -11,8 +11,10 @@ por lo que se puede repetir cuantas veces se quiera.
 """
 
 import json
+import socket
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 
 URL_BASE = (sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8000").rstrip("/")
@@ -167,6 +169,7 @@ def escenarios_invalidos():
     esperar_error("Costo negativo", "POST", "/api/conexiones", {**base, "costo": -5}, 400, "dato_invalido")
     esperar_error("Costo como texto", "POST", "/api/conexiones", {**base, "costo": "diez"}, 400, "dato_invalido")
     esperar_error("Costo booleano", "POST", "/api/conexiones", {**base, "costo": True}, 400, "dato_invalido")
+    esperar_error("Costo entero enorme (400 dígitos)", "POST", "/api/conexiones", {**base, "costo": 10 ** 400}, 400, "dato_invalido")
     esperar_error("Conexión sin costo", "POST", "/api/conexiones", base, 400, "formato_incorrecto")
     esperar_error("Costo NaN en el JSON", "POST", "/api/conexiones", None, 400, "formato_incorrecto",
                   crudo=b'{"origen": "BAR-SUR", "destino": "BAR-NORTE", "costo": NaN}')
@@ -174,6 +177,7 @@ def escenarios_invalidos():
                   {"origen": "BAR-SUR", "destino": "bar-sur", "costo": 3}, 400, "dato_invalido")
     esperar_error("JSON mal formado", "POST", "/api/puntos", None, 400, "formato_incorrecto", crudo=b'{"id": "X", "tipo": ')
     esperar_error("Cuerpo que no es un objeto", "POST", "/api/puntos", ["BOD-2", "bodega"], 400, "formato_incorrecto")
+    esperar_error("Consultar un punto con id de formato inválido", "GET", "/api/puntos/BAR%20NORTE", None, 400, "dato_invalido")
 
     puntos, conexiones = resumen_red()
     verificar("Los rechazos no modificaron la red", "4 puntos y 4 conexiones",
@@ -184,6 +188,18 @@ def escenarios_api_y_visualizacion():
     seccion("API, visualización y datos de ejemplo")
     esperar_error("Endpoint inexistente", "GET", "/api/rutas", None, 404, "ruta_no_encontrada")
     esperar_error("Método no permitido", "PUT", "/api/puntos", {"id": "X", "tipo": "barrio"}, 405, "metodo_no_permitido")
+
+    # Un cliente anuncia 100 bytes pero envía solo 5 y se queda esperando.
+    host, puerto = urllib.parse.urlsplit(URL_BASE).hostname, urllib.parse.urlsplit(URL_BASE).port or 80
+    with socket.create_connection((host, puerto), timeout=5) as cliente_lento:
+        cliente_lento.sendall(b"POST /api/puntos HTTP/1.1\r\nHost: x\r\nContent-Type: application/json\r\n"
+                              b"Content-Length: 100\r\n\r\n{\"id\"")
+        try:
+            estado, _, _ = llamar("GET", "/api/salud")
+        except OSError as error:
+            estado = f"sin respuesta ({error})"
+    verificar("Un cliente con una petición incompleta no bloquea la API",
+              "200 en /api/salud mientras el otro cliente espera", f"{estado}", estado == 200)
 
     estado, contenido, tipo = llamar("GET", "/api/red/imagen")
     es_png = isinstance(contenido, bytes) and contenido.startswith(b"\x89PNG")
