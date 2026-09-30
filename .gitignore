@@ -1,0 +1,14 @@
+# Entorno virtual y cachés de Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Configuración local de Claude Code (la del equipo sí se versiona en .claude/)
+.claude/settings.local.json
