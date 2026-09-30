@@ -102,7 +102,8 @@ decisión que toma `backend/red.py`.
 | 12 | Conexión `BAR-SUR → PR-ESTACION`, 10 | `BAR-SUR: {PR-ESTACION: 10}` | Aceptada |
 
 Orden de las validaciones en una conexión (primero lo más barato de revisar):
-**formato del costo → origen existe → destino existe → origen ≠ destino → par no repetido**.
+**costo válido → formato de origen y destino → origen existe → destino existe → origen ≠ destino → par no repetido**
+(ver `RedOperativa.agregar_conexion` en `backend/red.py`).
 Todas son O(1), así que registrar una conexión es O(1) en promedio.
 
 ## 7. Red de ejemplo sintética
